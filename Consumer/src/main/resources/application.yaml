@@ -1,3 +1,10 @@
+server:
+  port: 8080
 spring:
   application:
     name: Consumer
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: g1
+      auto-offset-reset: earliest

@@ -20,22 +20,20 @@ public class KafkaProducerConfig {
     @Autowired
     private KafkaProperties kafkaProperties;
 
-    // 1. La Fábrica: Define la conexión y serialización
+    // Define la conexión y serialización
     @Bean
     public ProducerFactory<String, Object> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
 
-        // Usamos la IP que viene del properties (Clean Architecture)
+        // IP que viene del yaml
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
 
-        // Definimos explícitamente que vamos a mandar Texto (String)
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
 
         return new DefaultKafkaProducerFactory<>(configProps);
     }
 
-    // 2. El Template: La herramienta que usas en tu código
     @Bean
     public KafkaTemplate<String, Object> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());

@@ -44,10 +44,10 @@ public class KafkaTopicConfig {
         // Política de borrado: DELETE (borra viejos) vs COMPACT (guarda el último estado)
         advancedConfigs.put(TopicConfig.CLEANUP_POLICY_CONFIG, TopicConfig.CLEANUP_POLICY_DELETE);
 
-        // Retención: 86400000 ms = 24 Horas. ¡Vital para no llenar el disco!
+        // Retención: 86400000 ms = 24 Horas. para no llenar el disco
         advancedConfigs.put(TopicConfig.RETENTION_MS_CONFIG, "86400000");
 
-        // Tamaño máx mensaje: por defecto es 1MB, aquí aseguramos ese límite
+        // Tamaño máx mensaje: por defecto es 1MB, límite
         advancedConfigs.put(TopicConfig.MAX_MESSAGE_BYTES_CONFIG, "1000000");
         return advancedConfigs;
     }
