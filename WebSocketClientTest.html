@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test WebSocket Spring</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+    <h2>Probando WebSocket</h2>
+    <div id="estado" style="font-weight: bold; color: red;">Desconectado</div>
+    <ul id="mensajes"></ul>
+
+    <script>
+        // 1. Conexión al endpoint que definiste en Java
+        var socket = new SockJS('http://localhost:8080/ws-prices');
+        var stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (frame) {
+            document.getElementById("estado").innerText = "CONECTADO (Mira tu consola Java ahora)";
+            document.getElementById("estado").style.color = "green";
+            console.log('Connected: ' + frame);
+
+            // 2. Suscripción al tópico
+            stompClient.subscribe('/topic/test', function (mensaje) {
+                var li = document.createElement("li");
+                li.appendChild(document.createTextNode(mensaje.body));
+                document.getElementById("mensajes").appendChild(li);
+                console.log("Recibido:", mensaje.body);
+            });
+        });
+    </script>
+</body>
+</html>
