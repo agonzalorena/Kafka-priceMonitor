@@ -22,7 +22,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // Punto de conexión WebSocket
         registry.addEndpoint("/ws-prices")
-                .setAllowedOriginPatterns("*") // Permitir CORS desde cualquier origen (ajustar en producción)
-                .withSockJS(); // Habilitar SockJS como fallback
+                .setAllowedOriginPatterns("*"); // Permitir CORS desde cualquier origen (ajustar en producción)
+                /*.withSockJS(); // Habilitar SockJS como fallback*/
     }
 }
