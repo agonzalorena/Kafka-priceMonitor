@@ -1,0 +1,20 @@
+meta {
+  name: Cambiar opcion
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8081/api/config/source?type=HYPER
+  body: none
+  auth: inherit
+}
+
+params:query {
+  type: HYPER
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
