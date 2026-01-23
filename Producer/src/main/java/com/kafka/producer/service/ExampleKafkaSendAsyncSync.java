@@ -1,8 +1,8 @@
+/*
 package com.kafka.producer.service;
 
 import com.kafka.producer.presentation.dto.PriceDTO;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,7 +13,6 @@ public class HyperPriceService {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    @Scheduled(fixedRate = 5000)
     public void sendMsgAsync(){
         String topic = "t-priceTest";
         PriceDTO price = new PriceDTO("HYPERUSDT", generateRandomPrice(), System.currentTimeMillis());
@@ -48,3 +47,4 @@ public class HyperPriceService {
         return String.valueOf((int)(Math.random() * (Integer.parseInt(maxPrice) - Integer.parseInt(minPrice))) + Integer.parseInt(minPrice));
     }
 }
+*/

@@ -30,7 +30,7 @@ public class KafkaTopicConfig {
     public NewTopic priceTest(){
         Map<String, String> advancedConfigs = getStringStringMap();
 
-        return TopicBuilder.name("t-priceTest")
+        return TopicBuilder.name("USDTPRICES")
                 .partitions(2) // Paralelismo
                 .replicas(1)   // Copias de seguridad (1 en local/Docker simple)
                 .configs(advancedConfigs)
