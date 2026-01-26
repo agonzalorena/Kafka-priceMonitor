@@ -6,15 +6,15 @@ Este proyecto es una prueba de concepto (PoC) para implementar una arquitectura 
 
 El flujo de datos está diseñado para ser totalmente desacoplado y reactivo:
 
-1. Producer Service: Un @Scheduled genera un precio aleatorio de USDT cada 10 segundos.
+1. Producer Service: Genera eventos de mercado simulados (precios de USDT) mediante tareas programadas (@Scheduled) y los publica en el tópico crypto-prices.
 
-2. Kafka Broker: Recibe el evento y lo almacena en el tópico t-usdt-prices.
+2. Kafka Broker: Actúa como la columna vertebral de mensajería, desacoplando los servicios y garantizando la persistencia y entrega de los eventos.
 
-3. Consumer Service: Lee el mensaje del tópico.
+3. Analyzer Service: Consume eventos de crypto-prices en tiempo real. Aplica lógica de negocio para detectar tendencias o variaciones bruscas y, si es necesario, emite eventos de alerta al tópico alerts.
 
-4. WebSocket Push: Envía el dato al frontend conectado.
+4. Consumer Service (WebSocket Gateway): Un servicio integrador que escucha ambos tópicos (crypto-prices y alerts) y retransmite la información hacia el frontend mediante WebSockets en tiempo real.
 
-5. Frontend: Renderiza el gráfico en tiempo real.
+5. Frontend: Interfaz reactiva que se suscribe a los WebSockets para renderizar gráficos de precios y mostrar notificaciones de alertas instantáneas al usuario.
 
 ## 🛠️ Tecnologías
 
