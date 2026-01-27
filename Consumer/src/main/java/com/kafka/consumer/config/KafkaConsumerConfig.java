@@ -11,6 +11,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
+import org.springframework.kafka.listener.adapter.RecordFilterStrategy;
 import org.springframework.kafka.support.converter.RecordMessageConverter;
 import org.springframework.kafka.support.converter.StringJsonMessageConverter;
 
@@ -61,4 +62,13 @@ public class KafkaConsumerConfig {
 
         return factory;
     }
+    @Bean
+    public RecordFilterStrategy<String,Object> variationFilter(){
+        return record -> !"VARIATION".equals(record.key());
+    }
+    @Bean
+    public RecordFilterStrategy<String, Object> trendFilter() {
+        return record -> !"TREND".equals(record.key());
+    }
+
 }

@@ -14,7 +14,7 @@ public class PriceConsumer {
         this.notificationService = notificationService;
     }
 
-    @KafkaListener(topics = "t-priceTest", groupId = "g1")
+    @KafkaListener(topics = "USDTPRICES", groupId = "g1")
     public void consume(PriceDTO price){
         System.out.println("Precio USDT recibido: " + price.price());
         notificationService.sendPriceUpdate(price);

@@ -1,5 +1,6 @@
 package com.kafka.consumer.service;
 
+import com.kafka.consumer.presentation.dto.AlertDTO;
 import com.kafka.consumer.presentation.dto.PriceDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -15,8 +16,14 @@ public class NotificationService {
         System.out.println("Enviando mensaje de prueba via WebSocket...");
         this.template.convertAndSend("/topic/test", "Mensaje de prueba desde el servidor");
     }
+
     public void sendPriceUpdate(PriceDTO price){
         System.out.println("Enviando actualización de precio via WebSocket: " + price.price());
-        this.template.convertAndSend("/topic/test", price);
+        this.template.convertAndSend("/topic/price", price);
+    }
+
+    public void sendAlert(AlertDTO dto){
+        System.out.println("Enviando alerta via WebSocket: " + dto);
+        this.template.convertAndSend("/topic/alert", dto);
     }
 }
