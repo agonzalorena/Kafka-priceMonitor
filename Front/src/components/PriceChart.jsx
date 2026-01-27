@@ -1,8 +1,10 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { createChart, ColorType } from "lightweight-charts";
 import { Client } from "@stomp/stompjs";
+import { toast } from "react-toastify";
 
 const PriceChart = () => {
+  const [symbol, setSymbol] = useState("Cargando...");
   const chartContainerRef = useRef(null);
 
   useEffect(() => {
@@ -56,10 +58,11 @@ const PriceChart = () => {
     stompClient.onConnect = (frame) => {
       console.log("🟢 Conectado al WebSocket");
 
-      stompClient.subscribe("/topic/test", (mensaje) => {
+      stompClient.subscribe("/topic/price", (mensaje) => {
         try {
           const rawData = JSON.parse(mensaje.body);
           console.log("price", rawData);
+          setSymbol(rawData.symbol);
           // VALIDACIÓN Y FORMATO DE DATOS
           // Lightweight Charts necesita 'time' en SEGUNDOS
           const timeInSeconds = rawData.timestamp
@@ -76,6 +79,38 @@ const PriceChart = () => {
           }
         } catch (error) {
           console.error("Error parseando mensaje:", error);
+        }
+      });
+      stompClient.subscribe("/topic/alert", (mensaje) => {
+        try {
+          const alertData = JSON.parse(mensaje.body);
+          console.log("🚨 Alerta recibida:", alertData);
+
+          // Procesar según el tipo de alerta
+          switch (alertData.alertType) {
+            case "TREND":
+              if (alertData.data.typeTrend == "ALCISTA") {
+                toast.success("📈");
+              } else if (alertData.data.typeTrend == "BAJISTA") {
+                toast.error("📉");
+              }
+              break;
+            case "VARIATION":
+              if (alertData.data.typeVariation == "SUBIO") {
+                toast.success(
+                  `🡅 ${alertData.data.variationPercentage.toFixed(1)}%`,
+                );
+              } else if (alertData.data.typeVariation == "BAJO") {
+                toast.error(
+                  `🡇 ${alertData.data.variationPercentage.toFixed(1)}%`,
+                );
+              }
+              break;
+            default:
+              console.warn("Tipo de alerta desconocido:", alertData.alertType);
+          }
+        } catch (error) {
+          console.error("Error parseando alerta:", error);
         }
       });
     };
@@ -106,7 +141,7 @@ const PriceChart = () => {
 
   return (
     <div>
-      <h2 className="text-white/70">USDT</h2>
+      <h2 className="text-white/70">{symbol}</h2>
       {/* El contenedor del gráfico */}
       <div
         ref={chartContainerRef}

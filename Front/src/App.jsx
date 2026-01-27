@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import PriceChart from "./components/PriceChart";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   return (
@@ -8,6 +9,17 @@ function App() {
       <div className="w-full md:w-1/2">
         <PriceChart />
       </div>
+      <ToastContainer
+        position="top-right"
+        autoClose={2500}
+        hideProgressBar
+        closeButton={false}
+        pauseOnHover
+        pauseOnFocusLoss={false} // 👈 clave
+        draggable={false}
+        toastClassName="custom-toast"
+        bodyClassName="custom-toast-body"
+      />
     </main>
   );
 }
