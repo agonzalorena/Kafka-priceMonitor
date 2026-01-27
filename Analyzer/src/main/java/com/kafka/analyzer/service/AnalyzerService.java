@@ -1,6 +1,9 @@
 package com.kafka.analyzer.service;
 
+import com.kafka.analyzer.presentation.dto.AlertTrendDTO;
+import com.kafka.analyzer.presentation.dto.AlertVariationDTO;
 import com.kafka.analyzer.presentation.dto.PriceDTO;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -12,15 +15,21 @@ public class AnalyzerService {
     private final int MAX = 3;
     private final Map<String, Deque<PriceDTO>> historyPriceMap = new  ConcurrentHashMap<>();
 
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final String topic = "ALERTS";
+    public AnalyzerService(KafkaTemplate<String, Object> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
+    }
+
     public void analize(PriceDTO dto){
         Deque<PriceDTO> history = historyPriceMap.computeIfAbsent(dto.symbol(),k -> new ArrayDeque<>());
 
-        PriceDTO lastPrice = history.peekLast();
+        PriceDTO lastPrice = history.peekFirst();
 
         if(history.size() == MAX){
-            history.pollFirst(); // sacamos el mas antiguo
+            history.pollLast();
         }
-        history.addLast(dto);
+        history.addFirst(dto);
 
         if(lastPrice != null){
             checkVariation(lastPrice, dto);
@@ -37,9 +46,9 @@ public class AnalyzerService {
         double variation = Math.abs(news - last) / last; // abs elimina el signo
 
         if(variation >= THRESHOLD){
-            String dir = (news > last) ? "subio" : "bajo";
-            System.out.println("ALERTA: el precio " + dir + " "+ (THRESHOLD*100)+ "% o mas para el simbolo: " + newPrice.symbol());
-
+            String dir = (news > last) ? "SUBIO" : "BAJO";
+            AlertVariationDTO alert = new AlertVariationDTO(newPrice.symbol(), dir, (variation * 100));
+            send(alert, "VARIATION");
         }
     }
     private void checkTrend(String symbol,Deque<PriceDTO> history){
@@ -51,20 +60,28 @@ public class AnalyzerService {
         double p2 = list.get(1).price();
         double p3 = list.get(2).price();
 
-        if(p3 > p2 && p2 > p1){
-            System.out.println("Tendencia ALCISTA para el simbolo: " + symbol);
-        } else if (p3 < p2 && p2 < p1) {
-            System.out.println("Tendencia BAJISTA para el simbolo: " + symbol);
+        if(p1 > p2 && p2 > p3){
+            AlertTrendDTO alert = new AlertTrendDTO(symbol, "ALCISTA");
+            send(alert, "TREND");
+        } else if (p3 > p2 && p2 > p1) {
+            AlertTrendDTO alert = new AlertTrendDTO(symbol, "BAJISTA");
+            send(alert, "TREND");
         }
     }
 
+    private void send(Object msg, String key){
+        kafkaTemplate.send(topic, key, msg)
+                .whenComplete((result,exception)->{
+                    if(exception !=null){
+                        System.err.println("Error enviando mensaje: " + exception.getMessage());
+                    }else {
+                        System.out.println("Mensaje enviado en offset: " + result.getRecordMetadata().offset());
+                    }
+                });
+        System.out.println("Mensaje enviado: " + msg);
+    }
 
     public Map<String, Deque<PriceDTO>> getHistoryPriceMap() {
-        // ordenar cada deque por timestamp antes de devolver
-        historyPriceMap.values().forEach(deque ->
-                deque.stream().sorted((p1, p2) -> Long.compare(p1.timestamp(), p2.timestamp()))
-        );
-
         return historyPriceMap;
     }
 
